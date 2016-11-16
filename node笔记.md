@@ -224,3 +224,213 @@ node.js里面的许多对象都会分发事件：一个net.server对象会在每
 理解：就像一个女人生了一个机器人，在某个指令下达的时候，他从事一些事情，等等，等同于java中的一个类；注意,他没有自由的权利，得手动触发。
 
 ## EventEmitter 类
+EventEmitter 对象如果在实例化时发生错误，会触发 'error' 事件。当添加新的监听器时，'newListener' 事件会触发，当监听器被移除时，'removeListener' 事件被触发。
+
+下面我们用一个简单的例子说明 EventEmitter 的用法：
+```
+var EventEmitter = require('events').EventEmitter;
+var event=new EventEmitter();
+event.on("some_event",function(){
+	console.log('some_event事件触发')
+});
+setTimeout(function(){
+	event.emit("some_event")
+},1000)
+```
+[event.js文件地址](event.js)
+
+# Node.js Buffer
+JavaScript 语言自身只有字符串数据类型，没有二进制数据类型。
+
+但在处理像TCP流或文件流时，必须使用到二进制数据。因此在 Node.js中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。
+
+在 Node.js 中，Buffer 类是随 Node 内核一起发布的核心库。Buffer 库为 Node.js 带来了一种存储原始数据的方法，可以让 Node.js 处理二进制数据，每当需要在 Node.js 中处理I/O操作中移动的数据时，就有可能使用 Buffer 库。原始数据存储在 Buffer 类的实例中。一个 Buffer 类似于一个整数数组，但它对应于 V8 堆内存之外的一块原始内存。
+
+## 创建buffer类
+
+### 方法一
+创建10字节的Buffer实例
+```
+var buf=new Buffer(10)
+```
+
+### 方法二
+给给定的数组创建buffer实例
+```
+var buf=new Buffer([10, 20, 30, 40, 50])
+```
+
+### 方法三
+通过字符串来创建Buffer
+```
+var buf=new Buffer("www.wangxiaojun.top")
+```
+utf-8 是默认的编码方式，此外它同样支持以下编码："ascii", "utf8", "utf16le", "ucs2", "base64" 和 "hex"。
+
+## 写入缓存区
+
+### 语法
+```
+buf.write(string,index,length,encoding)
+```
+
+### 参数说明
+1.string 要写入的字符串
+2.index 索引，默认为0
+3.length  默认为写入字符串的长度
+4.编码  默认为utf-8
+
+### 返回值
+返回实际写入的大小，如果buffer控件不足，只会写入部分字符串。
+
+实例 buf.js
+```
+var buf=new Buffer(256);
+var len=buf.write("www.wangxiaojun.top");
+console.log("写入自己数："+len)
+```
+
+[查看实例](buf.js)
+
+## 从缓冲区读取数据
+
+### 语法
+```
+buf.toString(encoding,start,end)
+```
+
+### 参数说明
+1.encoding 编码 默认utf-8
+2.start 开始读取位置  默认开始读取的索引位置
+3.end  结束读取位置  默认结束读取的索引位置
+
+### 实例
+```
+var buf=new Buffer(26);
+for(var i=0;i<26;i++){
+	buf[i]=i+97
+};
+console.log(buf.toString("ascii"));
+console.log(buf.toString("ascii",0,5));
+console.log(buf.toString("utf-8",0,5));
+console.log(buf.toString(undefined,0,5));
+```
+
+[实例查看](readbuf.js)
+
+## 将buffer转为JSON对象
+
+### 语法
+```
+buf.toJSON();
+```
+
+### 实例
+```
+var buf=new Buffer("www.wangxiaojun.top");
+var json = buf.toJSON();
+console.log(json)
+```
+[实例查看](jsonbuf)
+
+# Node.js Stream
+
+## Node.js Stream(流)
+Stream 是一个抽象接口，Node 中有很多对象实现了这个接口。例如，对http 服务器发起请求的request 对象就是一个 Stream，还有stdout（标准输出）。（小水管~哈哈）
+Node.js，Stream 有四种流类型：
+
+    Readable - 可读操作。
+
+    Writable - 可写操作。
+
+    Duplex - 可读可写操作.
+
+    Transform - 操作被写入数据，然后读出结果。
+
+所有的 Stream 对象都是 EventEmitter 的实例。常用的事件有：
+
+    data - 当有数据可读时触发。
+
+    end - 没有更多的数据可读时触发。
+
+    error - 在接收和写入过程中发生错误时触发。
+
+    finish - 所有数据已被写入到底层系统时触发。
+## 从流中读取数据
+创建stream.js文件，代码如下：
+```
+var fs=require("fs");
+var data='';
+
+//创建可读流
+var readStream = fs.createReadStream("input.txt");
+
+//设置编码为utf-8
+readStream.setEncoding("UTF8");
+
+//处理流事件
+readStream.on("data",function(chunk){
+	data+=chunk;
+});
+
+readStream.on("end",function(){
+	console.log(data)
+});
+
+readStream.on('error',function(err){
+	console.log(err)
+});
+
+console.log("程序执行完毕")
+```
+[文件预览](stream.js)
+
+## 写入流
+创建instream文件，代码如下：
+```
+var fs=require("fs");
+var data="晓军博客地址：www.wangxiaojun.top";
+
+//创建一个可写入的流到output.txt中
+var writeStream = fs.createWriteStream("output.txt");
+
+//使用utf8写入数据
+writeStream.write(data,"UTF8");
+
+//标记文件末尾
+writeStream.end();
+
+//处理事件流
+writeStream.on("finish",function(){
+	console.log("写入完成")
+})
+
+writeStream.on("error",function(err){
+	console.log(err)
+})
+
+console.log("程序执行完毕")
+```
+[instream预览](instream.js)
+
+## 管道流
+提供一个数据从一个载体到另一个载体的管道。
+![](pipe.png)
+ 如上面的图片所示，我们把文件比作装水的桶，而水就是文件里的内容，我们用一根管子(pipe)连接两个桶使得水从一个桶流入另一个桶，这样就慢慢的实现了大文件的复制过程。
+
+以下实例我们通过读取一个文件内容并将内容写入到另外一个文件中。
+```
+var fs=require("fs");
+
+//创建一个可读流
+var readStream=fs.createReadStream("input.txt");
+
+//创建一个可写流
+var writeStream=fs.createWriteStream("pipe.txt");
+
+//管道操作读写 将input.txt写入到pite.txt
+readStream.pipe(writeStream);
+
+console.log("程序执行完毕！")
+```
+[pipe.js预览](pipe.js)
