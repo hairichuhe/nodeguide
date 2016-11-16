@@ -436,3 +436,4 @@ console.log("程序执行完毕！")
 [pipe.js预览](pipe.js)
 
 ## 链式流
+测试
