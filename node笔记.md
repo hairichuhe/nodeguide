@@ -436,5 +436,108 @@ console.log("程序执行完毕！")
 [pipe.js预览](pipe.js)
 
 ## 链式流
-测试
-酱油
+链式是通过连接输出流到另外一个流并创建多个对个流操作链的机制。链式流一般用于管道操作。
+
+接下来我们就是用管道和链式来压缩和解压文件。
+
+创建 compress.js 文件, 代码如下：
+```
+var fs=require("fs");
+var zlib=require("zlib");
+
+//压缩input.txt文件为 input.txt.gz
+fs.createReadStream("input.txt")
+	.pipe(zlib.createGzip())
+	.pipe(fs.createWriteStream("input.txt.gz"));
+
+console.log("程序执行完毕！")
+```
+
+# nodejs模块系统
+ 为了让Node.js的文件可以相互调用，Node.js提供了一个简单的模块系统。
+
+模块是Node.js 应用程序的基本组成部分，文件和模块是一一对应的。换言之，一个 Node.js 文件就是一个模块，这个文件可能是JavaScript 代码、JSON 或者编译过的C/C++ 扩展。
+注解：有独立功能的一个块。
+## 创建模块
+例如：
+```
+// hello.js
+function hello (){
+	var name;
+	this.setName=function(nName){
+		name=nName;
+	};
+	this.sayHello=function(){
+		console.log("hello "+name)
+	}
+};
+module.exports=hello;
+```
+[hello.js](hello.js)
+## 调用模块
+例如：
+```
+// module.js
+var Hello=require("./hello");
+
+var hello=new Hello();
+hello.setName("wangxiaojun");
+hello.sayHello();
+```
+[module.js](module.js)
+
+## 服务端的模块放在哪里
+ Node.js中自带了一个叫做"http"的模块，我们在我们的代码中请求它并把返回值赋给一个本地变量。
+
+这把我们的本地变量变成了一个拥有所有 http 模块所提供的公共方法的对象。
+
+Node.js 的 require方法中的文件查找策略如下：
+
+由于Node.js中存在4类模块（原生模块和3种文件模块），尽管require方法极其简单，但是内部的加载却是十分复杂的，其加载优先级也各自不同。如下图所示：
+![](module.jpg)
+三种文件模块：.js。通过fs模块同步读取js文件并编译执行。
+.node。通过C/C++进行编写的Addon。通过dlopen方法进行加载。
+.json。读取文件，调用JSON.parse解析加载。
+
+## 从文件模块缓存中加载
+缓存中的模块，优先级高于原生模块和文件模块
+
+## 从原生模块加载
+ 原生模块的优先级仅次于文件模块缓存的优先级。require方法在解析文件名之后，优先检查模块是否在原生模块列表中。以http模块为例，尽管在目录下存在一个http/http.js/http.node/http.json文件，require("http")都不会从这些文件中加载，而是从原生模块中加载。
+
+原生模块也有一个缓存区，同样也是优先从缓存区加载。如果缓存区没有被加载过，则调用原生模块的加载方式进行加载和执行。
+
+## 从文件加载
+ 当文件模块缓存中不存在，而且不是原生模块的时候，Node.js会解析require方法传入的参数，并从文件系统中加载实际的文件，加载过程中的包装和编译细节在前一节中已经介绍过，这里我们将详细描述查找文件模块的过程，其中，也有一些细节值得知晓。
+
+require方法接受以下几种参数的传递：
+
+    http、fs、path等，原生模块。
+    ./mod或../mod，相对路径的文件模块。
+    /pathtomodule/mod，绝对路径的文件模块。
+    mod，非原生模块的文件模块。
+
+# node.js 函数
+在JavaScript中，一个函数可以作为另一个函数接收一个参数。我们可以先定义一个函数，然后传递，也可以在传递参数的地方直接定义函数。
+
+Node.js中函数的使用与Javascript类似，举例来说，你可以这样做： 
+```
+function say(word){
+	console.log(word)
+};
+function execute(method,val){
+	method(val)
+};
+execute(say,"hollo")
+```
+[function.js](function.js)
+
+## 匿名函数
+我们可以把一个函数作为变量传递。但是我们不一定要绕这个"先定义，再传递"的圈子，我们可以直接在另一个函数的括号中定义和传递这个函数：
+```
+function execute(method,val) {
+	method(val)
+};
+execute(function(word){console.log(word)},"hello");
+```
+[anonymity.js](anonymity.js)
