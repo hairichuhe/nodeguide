@@ -743,7 +743,149 @@ objsub.showName();
 console.log(objsub)
 ```
 [utilinherits.js](util.inherits.js)
-【注意：只会继承原型上的方法和属性，构造函数的方法和属性不会被继承！】
+【注意：只会继承原型上的方法和属性，构造函数的方法和属性不会被继承！】  
+
+## util.inspect
+ util.inspect(object,[showHidden],[depth],[colors])是一个将任意对象转换 为字符串的方法，通常用于调试和错误输出。它至少接受一个参数 object，即要转换的对象。
+
+showHidden 是一个可选参数，如果值为 true，将会输出更多隐藏信息。
+
+depth 表示最大递归的层数，如果对象很复杂，你可以指定层数以控制输出信息的多 少。如果不指定depth，默认会递归2层，指定为 null 表示将不限递归层数完整遍历对象。 如果color 值为 true，输出格式将会以ANSI 颜色编码，通常用于在终端显示更漂亮 的效果。
+
+特别要指出的是，util.inspect 并不会简单地直接把对象转换为字符串，即使该对 象定义了toString 方法也不会调用。  
+```
+var util = require('util'); 
+function Person() { 
+	this.name = 'byvoid'; 
+	this.toString = function() { 
+	return this.name; 
+	}; 
+} 
+var obj = new Person(); 
+console.log(util.inspect(obj)); 
+console.log(util.inspect(obj, true)); 
+```  
+运行结果：
+```
+var util = require('util'); 
+function Person() { 
+	this.name = 'byvoid'; 
+	this.toString = function() { 
+	return this.name; 
+	}; 
+} 
+var obj = new Person(); 
+console.log(util.inspect(obj)); 
+console.log(util.inspect(obj, true)); 
+```
+
+## util.isArray(object)
+如果给定的参数 "object" 是一个数组返回true，否则返回false。
+```
+var util = require('util');
+
+util.isArray([])
+  // true
+util.isArray(new Array)
+  // true
+util.isArray({})
+  // false
+```
+
+## util.isRegExp(object)
+如果给定的参数 "object" 是一个正则表达式返回true，否则返回false。
+```
+var util = require('util');
+
+util.isRegExp(/some regexp/)
+  // true
+util.isRegExp(new RegExp('another regexp'))
+  // true
+util.isRegExp({})
+  // false
+```
+
+## util.isDate(object)
+如果给定的参数 "object" 是一个日期返回true，否则返回false。
+```
+var util = require('util');
+
+util.isDate(new Date())
+  // true
+util.isDate(Date())
+  // false (without 'new' returns a String)
+util.isDate({})
+  // false
+```
+## util.isError(object)
+如果给定的参数 "object" 是一个错误对象返回true，否则返回false。  
+```
+var util = require('util');
+
+util.isError(new Error())
+  // true
+util.isError(new TypeError())
+  // true
+util.isError({ name: 'Error', message: 'an error occurred' })
+  // false
+```
+
+# Node.js 文件系统
+Node.js 提供一组类似 UNIX（POSIX）标准的文件操作API。 Node 导入文件系统模块(fs)语法如下所示：
+```
+var fs = require("fs")
+```
+
+## 异步和同步
+ Node.js 文件系统（fs 模块）模块中的方法均有异步和同步版本，例如读取文件内容的函数有异步的 fs.readFile() 和同步的 fs.readFileSync()。
+
+异步的方法函数最后一个参数为回调函数，回调函数的第一个参数包含了错误信息(error)。
+
+建议大家是用异步方法，比起同步，异步方法性能更高，速度更快，而且没有阻塞。
+
+## 实例
+创建 input.txt 文件，内容如下：
+```
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Node.js GET/POST请求
 在很多场景中，我们的服务器都需要跟用户的浏览器打交道，如表单提交。
